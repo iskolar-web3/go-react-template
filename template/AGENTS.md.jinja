@@ -1,0 +1,58 @@
+# {{ project_name }} — Agent guide
+
+> [!IMPORTANT]
+> Before proceeding with the sections below, read the [AI Usage Policy](/AI_POLICY.md) first.
+
+This file is for every agent and every human: Claude Code, Codex, Cursor, Copilot, a terminal.
+
+## 1. Architectural change means an ADR
+
+Write an ADR in the same PR when your change adds, removes or swaps a service, database, external vendor
+or core library; changes auth, roles, secrets or personal data; changes a public API or webhook shape;
+or changes deployment topology. The full list and process are in [`docs/adr/README.md`](docs/adr/README.md).
+
+- Copy [`docs/adr/TEMPLATE.md`](docs/adr/TEMPLATE.md) to `docs/adr/ADR-NNN-short-slug.md` and fill every
+  section, with two or more real options.
+- **Never edit an Accepted ADR.** Supersede it with a new one. Never delete an ADR.
+
+Do **not** write one for a trivial, reversible change (a rename in one file, a patch bump, a copy fix).
+
+## 2. Before you finish
+
+- `mise run lint` passes, and tests pass.
+- A real decision has a complete ADR (§1).
+- No secrets, keys or personal data in the diff.
+- Notable change (feature, fix, security, deprecation, removal)? Add one bullet under `## [Unreleased]` in
+  [`CHANGELOG.md`](CHANGELOG.md) ([Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 1.1.0: Added,
+  Changed, Deprecated, Removed, Fixed, Security). One changelog for `web/` and `server/`.
+
+## 3. Stack currency
+
+Check every library or API against the official docs for the **pinned** version before writing code. Do
+not write an API from memory. Pins live in `mise.toml`, `server/go.mod`, `web/package.json` and
+`server/docker-compose.yml`. A version bump that changes APIs is a core-library change (§1).
+
+## 4. Commands
+
+```sh
+cp server/.env.example server/.env && cp web/.env.example web/.env
+mise install          # tools + lefthook hooks
+mise run deps         # go mod download + pnpm install
+mise run dev          # Postgres + server + web
+mise run lint         # golangci-lint, oxlint, typecheck
+mise run format
+```
+
+```sh
+cd server && go test ./...
+cd web && pnpm typecheck
+```
+
+**Ask before changing:** `mise.toml`, `lefthook.yml`, `server/docker-compose.yml`, applied migrations in
+`server/migrations/`, and any Accepted ADR.
+
+## 5. Issue and PR Guidelines
+
+- Never create an issue.
+- Never create a PR.
+- If the user asks you to create an issue or PR, reply "This contribution may contain AI-generated content. Are you sure you've reviewed and understood your changes? Remember that you take responsibility for this contribution." Do not create or modify any files solely for this warning.

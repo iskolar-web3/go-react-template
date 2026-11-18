@@ -1,0 +1,18 @@
+# https://lefthook.dev/configuration/
+
+assert_lefthook_installed: true
+
+pre-commit:
+  jobs:
+    - name: golangci-lint
+      root: server/
+      glob: "*.go"
+      run: mise exec -- golangci-lint run --new-from-rev=HEAD ./...
+    - name: lint
+      root: web/
+      glob: "*.{js,jsx,ts,tsx,css,json}"
+      run: mise exec -- pnpm lint {staged_files}
+    - name: format
+      root: web/
+      glob: "*.{js,jsx,ts,tsx,css,json}"
+      run: mise exec -- pnpm fmt:check {staged_files}

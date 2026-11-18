@@ -1,0 +1,27 @@
+# https://copier.readthedocs.io/en/stable/configuring/
+_subdirectory: template
+
+project_name:
+  type: str
+  help: Human-readable project name
+  default: My App
+
+project_slug:
+  type: str
+  help: Lowercase slug (Docker Compose project name)
+  default: "{{ project_name | lower | replace(' ', '-') }}"
+
+description:
+  type: str
+  help: One-line description for the README
+  default: ""
+
+go_module:
+  type: str
+  help: Go module path
+  default: "github.com/iskolar-web3/{{ project_slug }}"
+
+db_name:
+  type: str
+  help: Postgres database name
+  default: "{{ project_slug | replace('-', '_') }}"

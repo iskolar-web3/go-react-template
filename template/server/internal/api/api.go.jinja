@@ -1,0 +1,52 @@
+package api
+
+import (
+	"context"
+	"net/http"
+	"time"
+
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	"{{ go_module }}/config"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+func New(mux *http.ServeMux, pool *pgxpool.Pool, cfg config.Config, shutdown <-chan struct{}) huma.API {
+	humaCfg := huma.DefaultConfig("{{ project_name }} API", "0.1.0")
+	humaCfg.CreateHooks = nil
+	humaCfg.DocsRenderer = huma.DocsRendererScalar
+
+	api := humago.New(mux, humaCfg)
+	registerHealth(api, pool)
+
+	// Add version group once API routes are implemented
+	// v1 := huma.NewGroup(api, "/v1")
+
+	return api
+}
+
+type healthOutput struct {
+	Body struct {
+		Status string `json:"status" example:"ok"`
+	}
+}
+
+func registerHealth(api huma.API, pool *pgxpool.Pool) {
+	huma.Register(api, huma.Operation{
+		OperationID: "health",
+		Method:      http.MethodGet,
+		Path:        "/health",
+		Summary:     "Health check",
+	}, func(ctx context.Context, _ *struct{}) (*healthOutput, error) {
+		ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+		defer cancel()
+
+		if err := pool.Ping(ctx); err != nil {
+			return nil, huma.Error503ServiceUnavailable("database unavailable")
+		}
+
+		out := &healthOutput{}
+		out.Body.Status = "ok"
+		return out, nil
+	})
+}

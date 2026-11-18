@@ -1,0 +1,73 @@
+name: Bug Report
+description: Report something that is not working correctly.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Reminder
+        To help resolve your issue quickly, please describe your problem as accurately and concisely as possible.
+
+  - type: checkboxes
+    attributes:
+      label: Pre-Submission Checklist
+      description: Please go through the checklist below before submitting your issue.
+      options:
+        - label: I have checked the existing/closed issues to ensure this has not already been reported.
+        - label: I am using the latest version of the app.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Bug Summary
+      description: Provide a clear, concise description of the bug.
+      placeholder: Brief bug description...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: A description of what actually happened. Include screenshots if applicable.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Provide the steps to reproduce the problem.
+      placeholder: "1.\n2.\n3."
+    validations:
+      required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshots / Logs
+      description: Attach relevant screenshots or error logs.
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, OS, app version, or other relevant details.
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here, such as specific features affected, frequency of the issue, etc.

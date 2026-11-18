@@ -1,0 +1,73 @@
+# {{ project_name }}
+{% if description %}
+{{ description }}
+{% endif %}
+## Documentation
+
+- [`AGENTS.md`](AGENTS.md): contributor and agent guide
+- [`docs/adr/`](docs/adr/README.md): architecture decision records
+
+## Prerequisites
+
+- [Docker](https://www.docker.com/)
+- [mise](https://mise.jdx.dev/)
+
+## Getting Started
+
+Create the env files for the server and the web app:
+
+```sh
+cp server/.env.example server/.env
+cp web/.env.example web/.env
+```
+
+Install the tools:
+
+```sh
+mise install
+```
+
+> [!NOTE]
+> We use mise tasks for the commands below. See [Tasks](#tasks) for more information.
+
+Install dependencies:
+
+```sh
+mise run deps
+```
+
+Run the server and the web app:
+
+```sh
+mise run dev
+```
+
+### Tasks
+
+To view the available tasks:
+
+```sh
+mise tasks
+```
+
+To print more information about a task:
+
+```sh
+mise run <task_name> -h
+# e.g., mise run dev -h
+```
+
+To run a task:
+
+```sh
+mise run <task_name>
+# e.g., mise run lint
+```
+
+> [!NOTE]
+> It is still possible to run the commands without mise. However, to avoid issues caused by version mismatches, using mise is recommended.
+
+## Template
+
+Generated from [go-react-template](https://github.com/iskolar-web3/go-react-template)
+with [Copier](https://copier.readthedocs.io/). Pull template updates with `copier update`.
