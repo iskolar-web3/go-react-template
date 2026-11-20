@@ -59,6 +59,12 @@ func run(cfg config.Config) error {
 	server := http.Server{
 		Addr:    cfg.Host + ":" + cfg.Port,
 		Handler: corsMiddleware(cfg.AllowedOrigins, logger.RequestLogger(router)),
+
+		// Slow clients cannot hold connections open forever (Slowloris).
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
 	slog.Info("starting server", "port", cfg.Port)
