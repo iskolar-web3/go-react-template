@@ -1,0 +1,55 @@
+// Package dbtest starts a throwaway Postgres (testcontainers) with every
+// migration applied. Call New once per package from TestMain.
+package dbtest
+
+import (
+	"context"
+	"log/slog"
+
+	"{{ go_module }}/migrations"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
+)
+
+type DB struct {
+	Pool *pgxpool.Pool
+	ctr  *postgres.PostgresContainer
+}
+
+func (d *DB) Close() {
+	d.Pool.Close()
+	if err := testcontainers.TerminateContainer(d.ctr); err != nil {
+		slog.Error(err.Error())
+	}
+}
+
+func New(ctx context.Context) *DB {
+	ctr, err := postgres.Run(
+		ctx,
+		"postgres:18.6", // keep in sync with docker-compose.yml
+		postgres.WithDatabase("test"),
+		postgres.WithUsername("postgres"),
+		postgres.WithPassword("postgres"),
+		postgres.BasicWaitStrategies(),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	connStr, err := ctr.ConnectionString(ctx, "sslmode=disable")
+	if err != nil {
+		panic(err)
+	}
+
+	if err := migrations.Migrate(ctx, connStr); err != nil {
+		panic(err)
+	}
+
+	pool, err := pgxpool.New(ctx, connStr)
+	if err != nil {
+		panic(err)
+	}
+
+	return &DB{Pool: pool, ctr: ctr}
+}
