@@ -24,6 +24,12 @@ run = [
   "cd web && pnpm lint && pnpm typecheck",
 ]
 
+[tasks.test]
+description = "Run server tests"
+usage = 'flag "-v --verbose" help="Enable verbose output"'
+dir = "server"
+run = "go test ./... ${usage_verbose:+-v}"
+
 [tasks.security]
 description = "Run all security checks"
 run = "mise run --continue-on-error 'security:**'"
