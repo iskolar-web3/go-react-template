@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  server:
+    name: Server
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Tool versions come from mise.toml, same as local dev.
+      - uses: jdx/mise-action@v5
+        with:
+          install_args: go golangci-lint
+
+      - name: Lint
+        run: golangci-lint run
+
+      - name: Build
+        run: go build ./...
+
+      # Tests start their own Postgres via testcontainers (internal/dbtest) and apply every migration.
+      - name: Test
+        run: go test -count=1 ./...
+
+  web:
+    name: Web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: jdx/mise-action@v5
+        with:
+          install_args: node pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm fmt:check
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm audit --audit-level=high --prod
+
+  migration-order:
+    name: Check migration order
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - run: bash scripts/check-migration-order.sh "origin/$BASE_REF"
+        env:
+          BASE_REF: ${{ github.base_ref }}
