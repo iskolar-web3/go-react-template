@@ -28,7 +28,7 @@ jobs:
       # Tool versions come from mise.toml, same as local dev.
       - uses: jdx/mise-action@v5
         with:
-          install_args: go golangci-lint
+          install_args: go aqua:golangci/golangci-lint
 
       - name: Lint
         run: golangci-lint run
