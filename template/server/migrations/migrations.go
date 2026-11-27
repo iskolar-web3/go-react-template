@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
+	"github.com/pressly/goose/v3/lock"
 )
 
 // Embeds this file only so the package compiles before the first .sql exists;
@@ -23,7 +24,15 @@ func Migrate(ctx context.Context, dbURL string) error {
 	}
 	defer db.Close()
 
-	provider, err := goose.NewProvider(goose.DialectPostgres, db, embedMigrations, goose.WithVerbose(true))
+	locker, err := lock.NewPostgresSessionLocker()
+	if err != nil {
+		return err
+	}
+
+	provider, err := goose.NewProvider(goose.DialectPostgres, db, embedMigrations,
+		goose.WithVerbose(true),
+		goose.WithSessionLocker(locker),
+	)
 	if errors.Is(err, goose.ErrNoMigrations) {
 		return nil
 	}
